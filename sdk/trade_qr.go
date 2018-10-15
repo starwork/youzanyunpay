@@ -16,9 +16,9 @@ type CreateQrcodeResp struct {
 
 func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp CreateQrcodeResp, err error) {
 	params := map[string]string{
-		"qr_name":  "收款理由",
-		"qr_price": "1",
-		"qr_type":  "QR_TYPE_DYNAMIC",
+		"qr_name":  qrName,
+		"qr_price": qrPrice,
+		"qr_type":  qrType,
 	}
 	resp, err := sdk.Invoke("youzan.pay.qrcode.create", "3.0.0", "GET", params, map[string]string{})
 	if err != nil {

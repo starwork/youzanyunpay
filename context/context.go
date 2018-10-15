@@ -5,19 +5,15 @@ import (
 	"sync"
 
 	"github.com/yuyan2077/youzanyunpay/cache"
-	"github.com/yuyan2077/youzanyunpay/sdk"
 )
 
 // Context struct
 type Context struct {
 	AppID     string
 	AppSecret string
-	GrantType string
 	KdtID     int
-	Token     string
 
 	Cache cache.Cache
-	SDK   *sdk.SDK
 
 	Writer  http.ResponseWriter
 	Request *http.Request

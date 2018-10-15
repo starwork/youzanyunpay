@@ -58,7 +58,7 @@ func (ctx *Context) GetAccessTokenFromServer() (resAccessToken ResAccessToken, e
 	var params = map[string]string{
 		"client_id":     ctx.AppID,
 		"client_secret": ctx.AppSecret,
-		"grant_type":    ctx.GrantType,
+		"grant_type":    "silent",
 		"kdt_id":        strconv.Itoa(ctx.KdtID),
 	}
 	resp := util.SendRequest(httpUrl, "POST", params, map[string]string{})

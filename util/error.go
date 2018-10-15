@@ -7,8 +7,8 @@ import (
 
 // CommonError 微信返回的通用错误json
 type CommonError struct {
-	ErrCode int64  `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
+	ErrCode int64  `json:"code"`
+	ErrMsg  string `json:"msg"`
 }
 
 // DecodeWithCommonError 将返回值按照CommonError解析

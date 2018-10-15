@@ -7,8 +7,6 @@ import (
 	"sync"
 )
 
-var YZYPay *Youzanyunpay
-
 type Youzanyunpay struct {
 	Context *context.Context
 }
@@ -16,24 +14,20 @@ type Youzanyunpay struct {
 type Config struct {
 	AppID     string
 	AppSecret string
+	KdtID     int
 	Cache     cache.Cache
 }
 
-//func NewYouzanyunpay(cfg *Config) *Youzanyunpay {
-//	ctx := new(context.Context)
-//	copyConfigToContext(cfg, ctx)
-//	return &Youzanyunpay{ctx}
-//}
-
-func NewYouzanyunpay(cfg *Config) {
+func NewYouzanyunpay(cfg *Config) *Youzanyunpay {
 	ctx := new(context.Context)
 	copyConfigToContext(cfg, ctx)
-	YZYPay = &Youzanyunpay{ctx}
+	return &Youzanyunpay{ctx}
 }
 
 func copyConfigToContext(cfg *Config, context *context.Context) {
 	context.AppID = cfg.AppID
 	context.AppSecret = cfg.AppSecret
+	context.KdtID = cfg.KdtID
 	context.Cache = cfg.Cache
 	context.SetAccessTokenLock(new(sync.RWMutex))
 	context.SetJsAPITicketLock(new(sync.RWMutex))
@@ -44,12 +38,7 @@ func (pay *Youzanyunpay) GetAccessToken() (string, error) {
 	return pay.Context.GetAccessToken()
 }
 
-//// GetSDK
-//func (pay *Youzanyunpay) GetSDK() *sdk.SDK {
-//	return sdk.NewSDK(pay.Context)
-//}
-
 // GetSDK
-func (pay *Youzanyunpay) GetSDK() {
-	YZYPay.Context.SDK = sdk.NewSDK(pay.Context)
+func (pay *Youzanyunpay) GetSDK() *sdk.SDK {
+	return sdk.NewSDK(pay.Context)
 }

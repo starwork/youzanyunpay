@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"io"
 )
 
 //Signature sha1签名
@@ -16,6 +17,9 @@ func Signature(params ...string) string {
 	//return fmt.Sprintf("%x", h.Sum(nil))
 
 	h := md5.New()
+	for _, s := range params {
+		io.WriteString(h, s)
+	}
 	//h.Write([]byte("123456")) // 需要加密的字符串为 123456
 	cipherStr := h.Sum(nil)
 	fmt.Println(cipherStr)

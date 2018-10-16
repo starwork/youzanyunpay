@@ -3,11 +3,9 @@ package context
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
-	"time"
-
 	"github.com/yuyan2077/youzanyunpay/util"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -34,10 +32,8 @@ func (ctx *Context) GetAccessToken() (accessToken string, err error) {
 	ctx.accessTokenLock.Lock()
 	defer ctx.accessTokenLock.Unlock()
 
-	accessTokenCacheKey := fmt.Sprintf("access_token_%s", ctx.AppID)
-	val := ctx.Cache.Get(accessTokenCacheKey)
-	if val != nil {
-		accessToken = val.(string)
+	if ctx.Token.TokenTimeOut > util.GetCurrTs() {
+		accessToken = ctx.Token.Token
 		return
 	}
 
@@ -68,8 +64,9 @@ func (ctx *Context) GetAccessTokenFromServer() (resAccessToken ResAccessToken, e
 		err = fmt.Errorf("GetUserAccessToken error : errcode=%v , errmsg=%v", resAccessToken.ErrCode, resAccessToken.ErrMsg)
 		return
 	}
-	accessTokenCacheKey := fmt.Sprintf("access_token_%s", ctx.AppID)
+
 	expires := resAccessToken.ExpiresIn - 1500
-	err = ctx.Cache.Set(accessTokenCacheKey, resAccessToken.AccessToken, time.Duration(expires)*time.Second)
+	ctx.Token.TokenTimeOut = expires + util.GetCurrTs()
+	ctx.Token.Token = resAccessToken.AccessToken
 	return
 }

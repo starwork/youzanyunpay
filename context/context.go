@@ -3,8 +3,6 @@ package context
 import (
 	"net/http"
 	"sync"
-
-	"github.com/yuyan2077/youzanyunpay/cache"
 )
 
 // Context struct
@@ -12,8 +10,7 @@ type Context struct {
 	AppID     string
 	AppSecret string
 	KdtID     int
-
-	Cache cache.Cache
+	Token     Token
 
 	Writer  http.ResponseWriter
 	Request *http.Request
@@ -23,6 +20,11 @@ type Context struct {
 
 	////jsAPITicket 读写锁 同一个AppID一个
 	//jsAPITicketLock *sync.RWMutex
+}
+
+type Token struct {
+	Token        string
+	TokenTimeOut int64
 }
 
 // Query returns the keyed url query value if it exists

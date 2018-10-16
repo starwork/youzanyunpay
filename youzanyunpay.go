@@ -1,7 +1,6 @@
 package youzanyunpay
 
 import (
-	"github.com/yuyan2077/youzanyunpay/cache"
 	"github.com/yuyan2077/youzanyunpay/context"
 	"github.com/yuyan2077/youzanyunpay/sdk"
 	"github.com/yuyan2077/youzanyunpay/server"
@@ -17,7 +16,6 @@ type Config struct {
 	AppID     string
 	AppSecret string
 	KdtID     int
-	Cache     cache.Cache
 }
 
 // GetServer 消息管理
@@ -37,7 +35,6 @@ func copyConfigToContext(cfg *Config, context *context.Context) {
 	context.AppID = cfg.AppID
 	context.AppSecret = cfg.AppSecret
 	context.KdtID = cfg.KdtID
-	context.Cache = cfg.Cache
 	context.SetAccessTokenLock(new(sync.RWMutex))
 	//context.SetJsAPITicketLock(new(sync.RWMutex))
 }

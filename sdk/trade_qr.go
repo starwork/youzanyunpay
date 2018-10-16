@@ -11,7 +11,7 @@ type CreateQrcodeResp struct {
 
 	QrUrl  string `json:"qr_url"`
 	QrCode string `json:"qr_code"`
-	QrID   int64  `json:"qr_id"`
+	QrID   string `json:"qr_id"`
 }
 
 func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp CreateQrcodeResp, err error) {
@@ -25,10 +25,12 @@ func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp C
 		return
 	}
 
-	json.Unmarshal(resp, &createQrcodeResp)
+	var resultInterface map[string]CreateQrcodeResp
+	json.Unmarshal(resp, &resultInterface)
 	if createQrcodeResp.ErrCode != 0 {
 		err = fmt.Errorf("GetUserAccessToken error : errcode=%v , errmsg=%v", createQrcodeResp.ErrCode, createQrcodeResp.ErrMsg)
 		return
 	}
+	createQrcodeResp = resultInterface["response"]
 	return
 }

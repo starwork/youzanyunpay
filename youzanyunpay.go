@@ -4,6 +4,8 @@ import (
 	"github.com/yuyan2077/youzanyunpay/cache"
 	"github.com/yuyan2077/youzanyunpay/context"
 	"github.com/yuyan2077/youzanyunpay/sdk"
+	"github.com/yuyan2077/youzanyunpay/server"
+	"net/http"
 	"sync"
 )
 
@@ -18,6 +20,13 @@ type Config struct {
 	Cache     cache.Cache
 }
 
+// GetServer 消息管理
+func (pay *Youzanyunpay) GetServer(req *http.Request, writer http.ResponseWriter) *server.Server {
+	pay.Context.Request = req
+	pay.Context.Writer = writer
+	return server.NewServer(pay.Context)
+}
+
 func NewYouzanyunpay(cfg *Config) *Youzanyunpay {
 	ctx := new(context.Context)
 	copyConfigToContext(cfg, ctx)
@@ -30,7 +39,7 @@ func copyConfigToContext(cfg *Config, context *context.Context) {
 	context.KdtID = cfg.KdtID
 	context.Cache = cfg.Cache
 	context.SetAccessTokenLock(new(sync.RWMutex))
-	context.SetJsAPITicketLock(new(sync.RWMutex))
+	//context.SetJsAPITicketLock(new(sync.RWMutex))
 }
 
 //GetAccessToken 获取access_token

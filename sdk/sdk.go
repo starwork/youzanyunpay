@@ -1,38 +1,20 @@
 package sdk
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/yuyan2077/youzanyunpay/context"
 	"github.com/yuyan2077/youzanyunpay/util"
 	"strings"
 )
 
-const youzanyunAPIURL = "https://open.youzan.com/api"
+const YouzanyunAPIURL = "https://open.youzan.com/api"
 
 //SDK
 type SDK struct {
 	*context.Context
 }
 
-type InvokeResp struct {
-	Response      []byte `json:"response"`
-	ErrorResponse []byte `json:"error_response"`
-}
-
-type InvokeResp1 struct {
-	Response      CQrcodeResp `json:"response"`
-	ErrorResponse []byte      `json:"error_response"`
-}
-
-type CQrcodeResp struct {
-	QrUrl  string `json:"qr_url"`
-	QrCode string `json:"qr_code"`
-	QrID   int64  `json:"qr_id"`
-}
-
-func (sdk *SDK) Invoke(apiName string, version string, method string, params map[string]string, files map[string]string) (result []byte, err error) {
-	var httpUrl = youzanyunAPIURL
+func (sdk *SDK) Invoke(apiName string, version string, method string, params map[string]string, files map[string]string) (resp []byte, err error) {
+	var httpUrl = YouzanyunAPIURL
 	var apiNameList = strings.Split(apiName, ".")
 	var serviceList = apiNameList[0 : len(apiNameList)-1]
 	var service = strings.Join(serviceList, ".")
@@ -54,19 +36,7 @@ func (sdk *SDK) Invoke(apiName string, version string, method string, params map
 	httpUrl += version
 	httpUrl += "/"
 	httpUrl += action
-	resp := util.SendRequest(httpUrl, method, paramMap, files)
-	var invokeResp1 InvokeResp1
-	json.Unmarshal(resp, &invokeResp1)
-	fmt.Println(invokeResp1)
-	var invokeResp InvokeResp
-	json.Unmarshal(resp, &invokeResp)
-	fmt.Println(invokeResp)
-
-	if invokeResp.ErrorResponse != nil {
-		result = invokeResp.ErrorResponse
-	} else {
-		result = invokeResp.Response
-	}
+	resp = util.SendRequest(httpUrl, method, paramMap, files)
 	return
 }
 

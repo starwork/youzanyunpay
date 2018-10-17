@@ -61,15 +61,6 @@ func (srv *Server) SetDebug(debug bool) {
 	srv.debug = debug
 }
 
-//Serve 处理有赞云的请求消息
-func (srv *Server) Serve() (m ReqMsgMsg, err error) {
-	m, err = srv.handleRequest()
-	if err != nil {
-		return
-	}
-	return
-}
-
 //HandleRequest 处理有赞云的请求
 //{
 //"msg": "%7B%22full_order_info%22%3A%7B%22remark_info%22%3A%7B%22buyer_message%22%3A%22%22%7D%2C%22pay_info%22%3A%7B%22outer_transactions%22%3A%5B%224200000168201810166190128957%22%5D%2C%22post_fee%22%3A%220.00%22%2C%22total_fee%22%3A%220.01%22%2C%22payment%22%3A%220.01%22%2C%22transaction%22%3A%5B%22181016214103000041%22%5D%7D%2C%22source_info%22%3A%7B%22is_offline_order%22%3Afalse%2C%22source%22%3A%7B%22platform%22%3A%22wx%22%2C%22wx_entrance%22%3A%22direct_buy%22%7D%7D%2C%22order_info%22%3A%7B%22consign_time%22%3A%7B%7D%2C%22order_extra%22%3A%7B%22is_from_cart%22%3A%22false%22%7D%2C%22created%22%3A%222018-10-16+21%3A41%3A01%22%2C%22status_str%22%3A%22%E5%B7%B2%E6%94%AF%E4%BB%98%22%2C%22expired_time%22%3A%222018-10-16+22%3A11%3A01%22%2C%22success_time%22%3A%7B%7D%2C%22type%22%3A6%2C%22tid%22%3A%22E20181016214101073500004%22%2C%22confirm_time%22%3A%7B%7D%2C%22pay_time%22%3A%222018-10-16+21%3A41%3A10%22%2C%22update_time%22%3A%222018-10-16+21%3A41%3A11%22%2C%22is_retail_order%22%3Afalse%2C%22pay_type%22%3A10%2C%22team_type%22%3A1%2C%22refund_state%22%3A0%2C%22close_type%22%3A0%2C%22status%22%3A%22TRADE_PAID%22%2C%22express_type%22%3A9%2C%22order_tags%22%3A%7B%22is_payed%22%3Atrue%2C%22is_secured_transactions%22%3Atrue%7D%7D%7D%7D",
@@ -86,9 +77,8 @@ func (srv *Server) Serve() (m ReqMsgMsg, err error) {
 //"msg_id": "59b2499c-59d7-4f94-8406-8b013318fac1",
 //"status": "PAID"
 //}
-func (srv *Server) handleRequest() (m ReqMsgMsg, err error) {
-
-	var msg ReqMsg
+//Serve 处理有赞云的请求消息
+func (srv *Server) Serve() (msg ReqMsg, err error) {
 	msg, err = srv.getMessage()
 
 	if err != nil {
@@ -111,23 +101,25 @@ func (srv *Server) handleRequest() (m ReqMsgMsg, err error) {
 	// 3. 判断消息是否伪造 —> 解析 sign
 	msgSignatureGen := util.Signature(msg.ClientID, msg.Msg, srv.AppSecret)
 	if msg.Sign != msgSignatureGen {
-		return m, fmt.Errorf("消息不合法，验证签名失败" + "msg.Sign:" + msg.Sign + "|" + "msgSignatureGen:" + msgSignatureGen)
+		return msg, fmt.Errorf("消息不合法，验证签名失败" + "msg.Sign:" + msg.Sign + "|" + "msgSignatureGen:" + msgSignatureGen)
 	}
 
 	// 4. 判断消息版本  —> 解析 version
 	//fmt.Println(msg.Version)
 
 	// 5. 判断消息的业务 —> 解析 type
-	if msg.Type != "trade_TradePaid" {
-		srv.SendResponseMsg()
-		return m, fmt.Errorf("消息不合法，不是想要的类型" + msg.Type)
-	}
+	//if msg.Type != "trade_TradePaid" {
+	//	srv.SendResponseMsg()
+	//	return msg, fmt.Errorf("消息不合法，不是想要的类型" + msg.Type)
+	//}
 
 	// 6. 处理消息体 —> 解码 msg ，反序列化消息结构体
-	switch msg.Type {
-	case "trade_TradePaid":
-		srv.GetTradeTradePaid(msg)
-	}
+	//switch msg.Type {
+	//case "trade_TradePaid":
+	//	msgMsg, err = srv.GetTradeTradePaid(msg.Msg)
+	//default:
+	//	fmt.Println("不是想要的类型", msg)
+	//}
 
 	// 7. 返回接收成功标识 {"code":0,"msg":"success"}
 	srv.SendResponseMsg()

@@ -26,6 +26,12 @@ type Server struct {
 	timestamp int64
 }
 
+//{"code":0,"msg":"success"}
+type RespMsg struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type ReqMsg struct {
 	ClientID  string `json:"client_id"` // 对应开发者后台的client_id
 	ID        string `json:"id"`        // 业务消息的标识: 如 订单消息为订单编号,会员卡消息为会员卡id标识
@@ -41,12 +47,6 @@ type ReqMsg struct {
 	Type      string `json:"type"`      // 消息业务类型：TRADE_ORDER_STATE-订单状态事件，TRADE_ORDER_REFUND-退款事件，TRADE_ORDER_EXPRESS-物流事件，ITEM_STATE-商品状态事件，ITEM_INFO-商品基础信息事件，POINTS-积分，SCRM_CARD-会员卡（商家侧），SCRM_CUSTOMER_CARD-会员卡（用户侧），TRADE-交易V1，ITEM-商品V1
 	Version   int    `json:"version"`   // 消息版本号，为了解决顺序性的问题 ，高版本覆盖低版本
 
-}
-
-//{"code":0,"msg":"success"}
-type RespMsg struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
 }
 
 //NewServer init
@@ -87,7 +87,7 @@ func (srv *Server) Serve() error {
 //"msg_id": "59b2499c-59d7-4f94-8406-8b013318fac1",
 //"status": "PAID"
 //}
-func (srv *Server) handleRequest() (m map[string]map[string]map[string]map[string]interface{}, err error) {
+func (srv *Server) handleRequest() (m ReqMsgMsg, err error) {
 
 	var msg ReqMsg
 	msg, err = srv.getMessage()
@@ -112,7 +112,7 @@ func (srv *Server) handleRequest() (m map[string]map[string]map[string]map[strin
 	// 3. 判断消息是否伪造 —> 解析 sign
 	msgSignatureGen := util.Signature(msg.ClientID, msg.Msg, srv.AppSecret)
 	if msg.Sign != msgSignatureGen {
-		return nil, fmt.Errorf("消息不合法，验证签名失败" + "msg.Sign:" + msg.Sign + "|" + "msgSignatureGen:" + msgSignatureGen)
+		return m, fmt.Errorf("消息不合法，验证签名失败" + "msg.Sign:" + msg.Sign + "|" + "msgSignatureGen:" + msgSignatureGen)
 	}
 
 	// 4. 判断消息版本  —> 解析 version
@@ -121,65 +121,14 @@ func (srv *Server) handleRequest() (m map[string]map[string]map[string]map[strin
 	// 5. 判断消息的业务 —> 解析 type
 	if msg.Type != "trade_TradePaid" {
 		srv.SendResponseMsg()
-		return nil, fmt.Errorf("消息不合法，不是想要的类型" + msg.Type)
+		return m, fmt.Errorf("消息不合法，不是想要的类型" + msg.Type)
 	}
 
 	// 6. 处理消息体 —> 解码 msg ，反序列化消息结构体
-	fmt.Println("msg.Msg", msg.Msg)
-	//var m map[string]map[string]interface{}
-	json.Unmarshal([]byte(msg.Msg), &m)
-	qrInfo := m["qr_info"]
-	qr_id := qrInfo["qr_id"]
-	qr_name := qrInfo["qr_name"]
-	full_order_info := m["full_order_info"]
-	//pay_info := full_order_info["pay_info"]
-	//payment := pay_info["payment"]
-	buyer_info := full_order_info["buyer_info"]
-	buyer_phone := buyer_info["buyer_phone"]
-	orders := full_order_info["orders"]
-	pic_path := orders["pic_path"]
-	oid := orders["oid"]
-	buyer_messages := orders["buyer_messages"]
-	title := orders["title"]
-	payment := orders["payment"]
-	source_info := full_order_info["source_info"]
-	source := source_info["source"]
-	platform := source["platform"]
-	wx_entrance := source["wx_entrance"]
-	order_info := full_order_info["order_info"]
-	order_extra := order_info["order_extra"]
-	buyer_name := order_extra["buyer_name"]
-	created := order_info["created"]
-	status_str := order_info["status_str"]
-	expired_time := order_info["expired_time"]
-	success_time := order_info["success_time"]
-	stype := order_info["type"]
-	tid := order_info["tid"]
-	pay_time := order_info["pay_time"]
-	status := order_info["status"]
-	order_tags := order_info["order_tags"]
-	is_payed := order_tags["is_payed"]
-
-	fmt.Println("qr_id:", qr_id)
-	fmt.Println("qr_name:", qr_name)
-	fmt.Println("payment:", payment)
-	fmt.Println("buyer_phone:", buyer_phone)
-	fmt.Println("pic_path:", pic_path)
-	fmt.Println("oid:", oid)
-	fmt.Println("buyer_messages:", buyer_messages)
-	fmt.Println("title:", title)
-	fmt.Println("platform:", platform)
-	fmt.Println("wx_entrance:", wx_entrance)
-	fmt.Println("buyer_name:", buyer_name)
-	fmt.Println("created:", created)
-	fmt.Println("status_str:", status_str)
-	fmt.Println("expired_time:", expired_time)
-	fmt.Println("success_time:", success_time)
-	fmt.Println("stype:", stype)
-	fmt.Println("tid:", tid)
-	fmt.Println("pay_time:", pay_time)
-	fmt.Println("status:", status)
-	fmt.Println("is_payed:", is_payed)
+	switch msg.Type {
+	case "trade_TradePaid":
+		srv.GetTradeTradePaid(msg)
+	}
 
 	// 7. 返回接收成功标识 {"code":0,"msg":"success"}
 	srv.SendResponseMsg()
@@ -189,7 +138,6 @@ func (srv *Server) handleRequest() (m map[string]map[string]map[string]map[strin
 
 //getMessage 解析有赞云推送的消息
 func (srv *Server) getMessage() (msg ReqMsg, err error) {
-	fmt.Println("22222", srv.Request.Header)
 	if err = json.NewDecoder(srv.Request.Body).Decode(&msg); err != nil {
 		return msg, fmt.Errorf("从body中解析json失败,err=%v", err)
 	}

@@ -62,13 +62,12 @@ func (srv *Server) SetDebug(debug bool) {
 }
 
 //Serve 处理有赞云的请求消息
-func (srv *Server) Serve() error {
-	_, err := srv.handleRequest()
+func (srv *Server) Serve() (m ReqMsgMsg, err error) {
+	m, err = srv.handleRequest()
 	if err != nil {
-		return err
+		return
 	}
-
-	return nil
+	return
 }
 
 //HandleRequest 处理有赞云的请求

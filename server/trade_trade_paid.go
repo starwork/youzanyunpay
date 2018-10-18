@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type ReqMsgMsg struct {
@@ -17,7 +18,7 @@ type QrInfo struct {
 
 type FullOrderInfo struct {
 	BuyerInfo  BuyerInfo  `json:"buyer_info"`  //
-	Orders     Orders     `json:"orders"`      //
+	PayInfo    PayInfo    `json:"pay_info"`    //
 	SourceInfo SourceInfo `json:"source_info"` //
 	OrderInfo  OrderInfo  `json:"order_info"`  //
 }
@@ -26,16 +27,8 @@ type BuyerInfo struct {
 	BuyerPhone string `json:"buyer_phone"` //
 }
 
-type Orders struct {
-	BuyerPhone    string `json:"buyer_phone"`    //
-	GoodsUrl      string `json:"goods_url"`      //
-	PicPath       string `json:"pic_path"`       //
-	Oid           string `json:"oid"`            //
-	Title         string `json:"title"`          //
-	BuyerMessages string `json:"buyer_messages"` //
-	Price         string `json:"price"`          //
-	TotalFee      string `json:"total_fee"`      //
-	Payment       string `json:"payment"`        //
+type PayInfo struct {
+	Payment string `json:"payment"` //
 }
 
 type SourceInfo struct {
@@ -69,7 +62,9 @@ type OrderTags struct {
 
 func (srv *Server) GetTradeTradePaid(msg string) (msgMsg ReqMsgMsg, err error) {
 	// 6. 处理消息体 —> 解码 msg ，反序列化消息结构体
-	json.Unmarshal([]byte(msg), &msgMsg)
+	m, _ := url.QueryUnescape(msg)
+	fmt.Println(m)
+	json.Unmarshal([]byte(m), &msgMsg)
 
 	fmt.Println("m.QrInfo.QrID:", msgMsg.QrInfo.QrID)
 	fmt.Println("m.QrInfo.QrName:", msgMsg.QrInfo.QrName)
@@ -78,26 +73,17 @@ func (srv *Server) GetTradeTradePaid(msg string) (msgMsg ReqMsgMsg, err error) {
 
 	fmt.Println("m.FullOrderInfo.OrderInfo.Created:", msgMsg.FullOrderInfo.OrderInfo.Created)
 	fmt.Println("m.FullOrderInfo.OrderInfo.ExpiredTime:", msgMsg.FullOrderInfo.OrderInfo.ExpiredTime)
-	fmt.Println("m.FullOrderInfo.OrderInfo.OrderExtra:", msgMsg.FullOrderInfo.OrderInfo.OrderExtra)
-	fmt.Println("m.FullOrderInfo.OrderInfo.OrderTags:", msgMsg.FullOrderInfo.OrderInfo.OrderTags)
+	fmt.Println("m.FullOrderInfo.OrderInfo.OrderExtra.BuyerName:", msgMsg.FullOrderInfo.OrderInfo.OrderExtra.BuyerName)
+	fmt.Println("m.FullOrderInfo.OrderInfo.OrderTags.IsPayed:", msgMsg.FullOrderInfo.OrderInfo.OrderTags.IsPayed)
 	fmt.Println("m.FullOrderInfo.OrderInfo.PayTime:", msgMsg.FullOrderInfo.OrderInfo.PayTime)
 	fmt.Println("m.FullOrderInfo.OrderInfo.PayType:", msgMsg.FullOrderInfo.OrderInfo.PayType)
 	fmt.Println("m.FullOrderInfo.OrderInfo.Status:", msgMsg.FullOrderInfo.OrderInfo.Status)
 	fmt.Println("m.FullOrderInfo.OrderInfo.StatusStr:", msgMsg.FullOrderInfo.OrderInfo.StatusStr)
 	fmt.Println("m.FullOrderInfo.OrderInfo.Tid:", msgMsg.FullOrderInfo.OrderInfo.Tid)
 
-	fmt.Println("m.FullOrderInfo.Orders.BuyerPhone:", msgMsg.FullOrderInfo.Orders.BuyerPhone)
-	fmt.Println("m.FullOrderInfo.Orders.BuyerMessages:", msgMsg.FullOrderInfo.Orders.BuyerMessages)
-	fmt.Println("m.FullOrderInfo.Orders.GoodsUrl:", msgMsg.FullOrderInfo.Orders.GoodsUrl)
-	fmt.Println("m.FullOrderInfo.Orders.Oid:", msgMsg.FullOrderInfo.Orders.Oid)
-	fmt.Println("m.FullOrderInfo.Orders.Payment:", msgMsg.FullOrderInfo.Orders.Payment)
-	fmt.Println("m.FullOrderInfo.Orders.PicPath:", msgMsg.FullOrderInfo.Orders.PicPath)
-	fmt.Println("m.FullOrderInfo.Orders.Price:", msgMsg.FullOrderInfo.Orders.Price)
-	fmt.Println("m.FullOrderInfo.Orders.Title:", msgMsg.FullOrderInfo.Orders.Title)
-	fmt.Println("m.FullOrderInfo.Orders.TotalFee:", msgMsg.FullOrderInfo.Orders.TotalFee)
+	fmt.Println("m.FullOrderInfo.PayInfo.Payment:", msgMsg.FullOrderInfo.PayInfo.Payment)
 
 	fmt.Println("m.FullOrderInfo.SourceInfo.Source.Platform:", msgMsg.FullOrderInfo.SourceInfo.Source.Platform)
 	fmt.Println("m.FullOrderInfo.SourceInfo.Source.WxEntrance:", msgMsg.FullOrderInfo.SourceInfo.Source.WxEntrance)
-
 	return
 }

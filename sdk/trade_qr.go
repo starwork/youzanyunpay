@@ -20,7 +20,7 @@ func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp C
 		"qr_price": qrPrice,
 		"qr_type":  qrType,
 	}
-	resp, err := sdk.Invoke("youzan.pay.qrcode.create", "3.0.0", "GET", params, map[string]string{})
+	resp, err := sdk.Invoke("youzan.pay.qrcode.create", "3.0.0", "POST", params, map[string]string{})
 	if err != nil {
 		return
 	}
@@ -32,5 +32,8 @@ func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp C
 		return
 	}
 	createQrcodeResp = resultInterface["response"]
+	if createQrcodeResp.QrCode == "" {
+		return createQrcodeResp, fmt.Errorf("GetUserAccessToken error")
+	}
 	return
 }

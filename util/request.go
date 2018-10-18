@@ -15,22 +15,12 @@ func SendRequest(httpUrl string, method string, paramMap map[string]string, file
 	fmt.Println("request paramMap", paramMap)
 
 	var body io.Reader
-	if method == "POST" {
-		v := url.Values{}
-		for key, val := range paramMap {
-			v.Set(key, val)
-		}
-		//利用指定的method,url以及可选的body返回一个新的请求.如果body参数实现了io.Closer接口，Request返回值的Body 字段会被设置为body，并会被Client类型的Do、Post和PostFOrm方法以及Transport.RoundTrip方法关闭。
-		body = ioutil.NopCloser(strings.NewReader(v.Encode())) //把form数据编下码
-	} else {
-		httpUrl += "?"
-		for key, val := range paramMap {
-			httpUrl += key
-			httpUrl += "="
-			httpUrl += val
-			httpUrl += "&"
-		}
+	v := url.Values{}
+	for key, val := range paramMap {
+		v.Set(key, val)
 	}
+	//利用指定的method,url以及可选的body返回一个新的请求.如果body参数实现了io.Closer接口，Request返回值的Body 字段会被设置为body，并会被Client类型的Do、Post和PostFOrm方法以及Transport.RoundTrip方法关闭。
+	body = ioutil.NopCloser(strings.NewReader(v.Encode())) //把form数据编下码
 	//生成client 参数为默认
 	client := &http.Client{}
 	//提交请求
@@ -38,9 +28,7 @@ func SendRequest(httpUrl string, method string, paramMap map[string]string, file
 	if err != nil {
 		panic(err)
 	}
-	if method == "POST" {
-		reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	}
+	reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	//处理返回结果
 	response, _ := client.Do(reqest)
 

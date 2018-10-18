@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"fmt"
 	"github.com/yuyan2077/youzanyunpay/context"
 	"github.com/yuyan2077/youzanyunpay/util"
 	"strings"
@@ -28,6 +29,8 @@ func (sdk *SDK) Invoke(apiName string, version string, method string, params map
 		return
 	}
 	for k, v := range params {
+		fmt.Println("k", k)
+		fmt.Println("v", v)
 		paramMap[k] = v
 	}
 	httpUrl += "/"

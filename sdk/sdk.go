@@ -3,6 +3,7 @@ package sdk
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/goinggo/mapstructure"
 	"github.com/yuyan2077/youzanyunpay/context"
 	"github.com/yuyan2077/youzanyunpay/util"
 	"strings"
@@ -20,7 +21,7 @@ type ResultInterface struct {
 	ResponseError interface{} `json:"response_error"`
 }
 
-func (sdk *SDK) Invoke(apiName string, version string, method string, params map[string]string, files map[string]string) (resultInterface ResultInterface, err error) {
+func (sdk *SDK) Invoke(apiName string, version string, method string, params map[string]string, files map[string]string) (responseMap map[string]interface{}, err error) {
 	var httpUrl = YouzanyunAPIURL
 	var apiNameList = strings.Split(apiName, ".")
 	var serviceList = apiNameList[0 : len(apiNameList)-1]
@@ -47,11 +48,22 @@ func (sdk *SDK) Invoke(apiName string, version string, method string, params map
 	httpUrl += action
 	resp := util.SendRequest(httpUrl, method, paramMap, files)
 
+	var resultInterface ResultInterface
 	json.Unmarshal(resp, &resultInterface)
-	if resultInterface.ResponseError.(util.CommonError).ErrCode != 0 {
+	responseErrorMap := resultInterface.ResponseError.(map[string]interface{})
+
+	var commonError util.CommonError
+	//将 map 转换为指定的结构体
+	if err := mapstructure.Decode(responseErrorMap, &commonError); err != nil {
+		return
+	}
+
+	if commonError.ErrCode != 0 {
 		err = fmt.Errorf("GetUserAccessToken error : errcode=%v , errmsg=%v", resultInterface.ResponseError.(util.CommonError).ErrCode, resultInterface.ResponseError.(util.CommonError).ErrMsg)
 		return
 	}
+
+	responseMap = resultInterface.Response.(map[string]interface{})
 	return
 }
 

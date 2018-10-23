@@ -1,5 +1,7 @@
 package sdk
 
+import "github.com/goinggo/mapstructure"
+
 type CreateQrcodeResp struct {
 	QrUrl  string `json:"qr_url"`
 	QrCode string `json:"qr_code"`
@@ -12,11 +14,13 @@ func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp C
 		"qr_price": qrPrice,
 		"qr_type":  qrType,
 	}
-	resultInterface, err := sdk.Invoke("youzan.pay.qrcode.create", "3.0.0", "POST", params, map[string]string{})
+	responseMap, err := sdk.Invoke("youzan.pay.qrcode.create", "3.0.0", "POST", params, map[string]string{})
 	if err != nil {
 		return
 	}
-
-	createQrcodeResp = resultInterface.Response.(CreateQrcodeResp)
+	//将 map 转换为指定的结构体
+	if err := mapstructure.Decode(responseMap, &createQrcodeResp); err != nil {
+		return
+	}
 	return
 }

@@ -54,7 +54,7 @@ func (sdk *SDK) Invoke(apiName string, version string, method string, params map
 
 	var commonError util.CommonError
 	//将 map 转换为指定的结构体
-	if err := mapstructure.Decode(responseErrorMap, &commonError); err != nil {
+	if err = mapstructure.Decode(responseErrorMap, &commonError); err != nil {
 		return
 	}
 

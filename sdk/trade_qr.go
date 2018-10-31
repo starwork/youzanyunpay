@@ -19,7 +19,7 @@ func (sdk *SDK) CreateQrcode(qrName, qrPrice, qrType string) (createQrcodeResp C
 		return
 	}
 	//将 map 转换为指定的结构体
-	if err := mapstructure.Decode(responseMap, &createQrcodeResp); err != nil {
+	if err = mapstructure.Decode(responseMap, &createQrcodeResp); err != nil {
 		return
 	}
 	return

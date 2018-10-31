@@ -19,7 +19,7 @@ func (sdk *SDK) GetTrade(tid string) (trade Trade, err error) {
 	}
 
 	//将 map 转换为指定的结构体
-	if err := mapstructure.Decode(responseMap, &trade); err != nil {
+	if err = mapstructure.Decode(responseMap, &trade); err != nil {
 		return
 	}
 	return
